@@ -121,28 +121,41 @@ class StepViewKotlin : View {
         val bigRadius = mFillRadius + mStrokeWidth
         val startCircleY = paddingTop + bigRadius
         val childWidth = width / stepSize
-        for (i in 1..stepSize) {
+        for (i in 1..mCurrentStep) {
             drawableStep(canvas, i, halfFontHeightOffset, fontHeight, bigRadius,
-                    childWidth * i - childWidth / 2, startCircleY)
+                    childWidth * i - childWidth / 2, startCircleY,true)
         }
+
+        for (i in mCurrentStep + 1..stepSize){
+            drawableStep(canvas, i, halfFontHeightOffset, fontHeight, bigRadius,
+                    childWidth * i - childWidth / 2, startCircleY,false)
+        }
+
         val halfLineLength = childWidth / 2 - bigRadius
-        for (i in 1 until stepSize) {
+        for (i in 1 until mCurrentStep) {
             val lineCenterX = childWidth * i
             drawableLine(canvas, lineCenterX - halfLineLength,
-                    lineCenterX + halfLineLength, startCircleY)
+                    lineCenterX + halfLineLength, startCircleY,true)
         }
+
+        for (i in mCurrentStep until stepSize) {
+            val lineCenterX = childWidth * i
+            drawableLine(canvas, lineCenterX - halfLineLength,
+                    lineCenterX + halfLineLength, startCircleY,false)
+        }
+
     }
 
     /**
      *  绘制选中时的圆圈
      */
     private fun drawableStep(canvas: Canvas, step: Int, halfFontHeightOffset: Int, fontHeight: Int,
-                             bigRadius: Int, circleCenterX: Int, circleCenterY: Int) {
+                             bigRadius: Int, circleCenterX: Int, circleCenterY: Int,hasColor: Boolean) {
         val text = mSteps[step - 1]
         val isSelected = step == mCurrentStep
 
         // 选中时绘制样式
-        if (isSelected) {
+        if (hasColor) {
             mPaint.strokeWidth = mStrokeWidth.toFloat()
             mPaint.style = Paint.Style.STROKE
             mPaint.color = mCircleColor
@@ -172,8 +185,12 @@ class StepViewKotlin : View {
     /**
      * 绘制圈与圈之间的连线
      */
-    private fun drawableLine(canvas: Canvas, startX: Int, endX: Int, centerY: Int) {
-        mPaint.color = mCircleColor
+    private fun drawableLine(canvas: Canvas, startX: Int, endX: Int, centerY: Int,hasColor: Boolean) {
+        if (hasColor){
+            mPaint.color = mSelectedColor
+        }else{
+            mPaint.color = mCircleColor
+        }
         mPaint.strokeWidth = mLineWidth.toFloat()
         canvas.drawLine(startX.toFloat(), centerY.toFloat(), endX.toFloat(), centerY.toFloat(), mPaint)
     }
